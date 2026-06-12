@@ -1,17 +1,26 @@
-import ytdl from '@distube/ytdl-core';
+const ytdl = require('ytdl-core');
 
-export default async function handler(req, res) {
-  const { url } = req.query;
-  if (!url) return res.status(400).json({ error: "Missing URL" });
+module.exports = async (req, res) => {
+  const videoUrl = req.query.url;
+
+  if (!videoUrl) {
+    return res.status(400).json({ error: 'الرجاء إرسال رابط اليوتيوب في المتغير "url"' });
+  }
 
   try {
-    const info = await ytdl.getInfo(url);
-    const format = ytdl.chooseFormat(info.formats, { filter: 'audioonly' });
-    return res.status(200).json({
+    if (!ytdl.validateURL(videoUrl)) {
+      return res.status(400).json({ error: 'رابط يوتيوب غير صالح' });
+    }
+
+    const info = await ytdl.getInfo(videoUrl);
+    const audioFormat = ytdl.chooseFormat(info.formats, { filter: 'audioonly' });
+
+    res.status(200).json({
       title: info.videoDetails.title,
-      downloadUrl: format.url
+      url: audioFormat.url
     });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: 'خطأ أثناء المعالجة: ' + error.message });
   }
-}
+};
