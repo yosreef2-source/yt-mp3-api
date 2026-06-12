@@ -1,17 +1,11 @@
-import ytdl from '@distube/ytdl-core';
-
-export default async function handler(req, res) {
-  const { url } = req.query;
-  if (!url) return res.status(400).send("Missing URL");
-
-  try {
-    const info = await ytdl.getInfo(url);
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
-    res.json({
-      title: info.videoDetails.title,
-      downloadUrl: format.url
-    });
-  } catch (err) {
-    res.status(500).send(err.message);
+{
+  "name": "yt-mp3-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "dependencies": {
+    "express": "4.18.2",
+    "@distube/ytdl-core": "4.14.4",
+    "ytdl-core": "4.11.5"
   }
 }
